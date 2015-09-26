@@ -135,4 +135,8 @@ public class NullTransport extends AbsTransport {
 		return false;
 	}
 
+	@Override
+	public boolean resetOnConnectionChange() {
+		return false;
+	}
 }

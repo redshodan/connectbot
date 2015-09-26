@@ -29,6 +29,7 @@ import org.connectbot.service.TerminalBridge;
 import org.connectbot.service.TerminalKeyListener;
 import org.connectbot.service.TerminalManager;
 import org.connectbot.util.PreferenceConstants;
+import org.connectbot.util.InstallMosh;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -457,6 +458,10 @@ public class ConsoleActivity extends AppCompatActivity implements BridgeDisconne
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
+
+		if (!InstallMosh.isInstallStarted()) {
+			new InstallMosh(this);
+		}
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
 			StrictModeSetup.run();

@@ -27,6 +27,7 @@ import org.connectbot.service.TerminalManager;
 import org.connectbot.transport.TransportFactory;
 import org.connectbot.util.HostDatabase;
 import org.connectbot.util.PreferenceConstants;
+import org.connectbot.util.InstallMosh;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
@@ -197,6 +198,8 @@ public class HostListActivity extends ListActivity implements OnHostStatusChange
 				editor.commit();
 			}
 		}
+
+		new InstallMosh(this);
 
 		this.makingShortcut = Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction())
 								|| Intent.ACTION_PICK.equals(getIntent().getAction());

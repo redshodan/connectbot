@@ -147,7 +147,7 @@ public final class InstallMosh implements Runnable {
 			installMessage.append("installing mosh-client binary\r\n");
 			try {
 				InputStream bin_tar = context.getResources().openRawResource(R.raw.data_tar_gz);
-				Process untar = Runtime.getRuntime().exec(busybox_path.getPath() + " -C " + data_dir + " -zxf -");
+				Process untar = Runtime.getRuntime().exec(busybox_path.getPath() + " tar -C " + data_dir + " -zxf -");
 				OutputStream tar_out = untar.getOutputStream();
 				InputStream stdout = untar.getInputStream();
 				InputStream stderr = untar.getErrorStream();

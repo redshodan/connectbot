@@ -819,7 +819,7 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 	public HostBean createHost(Uri uri) {
 		HostBean host = new HostBean();
 
-		host.setProtocol(getProtocolName());
+		host.setProtocol(instanceProtocolName());
 
 		host.setHostname(uri.getHost());
 
@@ -843,7 +843,7 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 
 	@Override
 	public void getSelectionArgs(Uri uri, Map<String, String> selection) {
-		selection.put(HostDatabase.FIELD_HOST_PROTOCOL, getProtocolName());
+		selection.put(HostDatabase.FIELD_HOST_PROTOCOL, instanceProtocolName());
 		selection.put(HostDatabase.FIELD_HOST_NICKNAME, uri.getFragment());
 		selection.put(HostDatabase.FIELD_HOST_HOSTNAME, uri.getHost());
 

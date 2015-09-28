@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.connectbot.bean.HostBean;
 import org.connectbot.service.TerminalBridge;
@@ -46,10 +46,10 @@ import android.os.IBinder;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
+import android.preference.SwitchPreference;
 import android.util.Log;
 
-public class HostEditorActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
+public class HostEditorActivity extends AppCompatPreferenceActivity implements OnSharedPreferenceChangeListener {
 	public class CursorPreferenceHack implements SharedPreferences {
 		protected final String table;
 		protected final long id;
@@ -313,7 +313,7 @@ public class HostEditorActivity extends PreferenceActivity implements OnSharedPr
 			if (key.equals(HostDatabase.FIELD_HOST_POSTLOGIN)) continue;
 			Preference pref = this.findPreference(key);
 			if (pref == null) continue;
-			if (pref instanceof CheckBoxPreference) continue;
+			if (pref instanceof CheckBoxPreference || pref instanceof SwitchPreference) continue;
 			CharSequence value = this.pref.getString(key, "");
 
 			if (key.equals(HostDatabase.FIELD_HOST_PUBKEYID)) {

@@ -14,12 +14,17 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  -->
+ -->
 
-<resources>
-	<style name="AppTheme" parent="android:Theme.Material">
-		<item name="android:colorPrimary">@color/primary</item>
-		<item name="android:colorPrimaryDark">@color/dark_primary</item>
-		<item name="android:colorAccent">@color/accent</item>
-	</style>
-</resources>
+<android.support.v7.widget.SwitchCompat
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:id="@android:id/checkbox"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:background="@null"
+	android:clickable="false"
+	android:focusable="false"
+	android:theme="@style/SwitchCompatTheme"
+	app:showText="false"
+	/>

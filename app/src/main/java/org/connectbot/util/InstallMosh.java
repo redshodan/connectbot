@@ -47,7 +47,7 @@ public final class InstallMosh implements Runnable {
 
 	public InstallMosh(Context context) {
 		this.context = context;
-		data_dir = new File("/data/data/org.woltage.irssiconnectbot/files/"); // hard-coded in binary packages
+		data_dir = new File("/data/data/org.connectbot/files/"); // hard-coded in binary packages
 		bindir = new File(data_dir, "bin");
 		File moshFile = new File(bindir, "mosh-client");
 

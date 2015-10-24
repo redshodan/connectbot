@@ -24,7 +24,6 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.regex.Matcher;
-// import java.util.regex.Pattern;
 import java.net.InetAddress;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -151,7 +150,7 @@ public class Mosh extends SSH implements ConnectionMonitor, InteractiveCallback,
 		authenticated = true;
 
 		try {
-						bridge.outputLine("trying to run mosh-server on the remote server");
+			bridge.outputLine("trying to run mosh-server on the remote server");
 			session = connection.openSession();
 
 			session.requestPTY("screen", 80, 25, 800, 600, null);

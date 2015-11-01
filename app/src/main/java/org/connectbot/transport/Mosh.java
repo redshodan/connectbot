@@ -345,10 +345,10 @@ public class Mosh extends SSH implements ConnectionMonitor, InteractiveCallback,
 			.append("://")
 			.append(Uri.encode(username))
 			.append('@')
-			.append(hostname);
+			.append(Uri.encode(hostname));
 		nickname.append("mosh " + username + "@" + hostname);
 
-		String portString = matcher.group(4);
+		String portString = matcher.group(6);
 		int port = DEFAULT_PORT;
 		if (portString != null) {
 			try {

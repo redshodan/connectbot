@@ -205,10 +205,8 @@ public class TerminalView extends FrameLayout implements FontSizeChangedListener
 			@Override
 			public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 				// The terminalTextViewOverlay handles scrolling. Only handle scrolling if it
-				// is not available (i.e. on pre-Honeycomb devices).
-				if (terminalTextViewOverlay != null) {
-					return false;
-				}
+				// is not available (i.e. on pre-Honeycomb devices), or we did a page up/down
+				// event.
 
 				// activate consider if within x tolerance
 				int touchSlop =
@@ -229,19 +227,26 @@ public class TerminalView extends FrameLayout implements FontSizeChangedListener
 							((vt320) bridge.buffer).keyPressed(vt320.KEY_PAGE_DOWN, ' ', 0);
 							bridge.tryKeyVibrate();
 							totalY = 0;
+							return true;
 						} else if (moved < -5) {
 							((vt320) bridge.buffer).keyPressed(vt320.KEY_PAGE_UP, ' ', 0);
 							bridge.tryKeyVibrate();
 							totalY = 0;
+							return true;
 						}
-					} else if (moved != 0) {
+					}
+					else if ((terminalTextViewOverlay == null) && (moved != 0)) {
 						int base = bridge.buffer.getWindowBase();
 						bridge.buffer.setWindowBase(base + moved);
 						totalY = 0;
+						return true;
 					}
 				}
 
-				return true;
+				if (terminalTextViewOverlay == null)
+					return true;
+				else
+					return false;
 			}
 
 			@Override

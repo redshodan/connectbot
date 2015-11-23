@@ -44,8 +44,10 @@ import org.connectbot.util.PubkeyDatabase;
 import org.connectbot.util.PubkeyUtils;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.AssetFileDescriptor;
@@ -120,10 +122,36 @@ public class TerminalManager extends Service implements BridgeDisconnectedListen
 
 	public boolean hardKeyboardHidden;
 
+	private BroadcastReceiver mScreenPowerReceiver;
+
+	private final class ScreenPowerReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(final Context context, final Intent intent) {
+			if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+				synchronized (bridges) {
+					for (TerminalBridge bridge : bridges) {
+						bridge.onScreenOff();
+					}
+				}
+			} else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+				synchronized (bridges) {
+					for (TerminalBridge bridge : bridges) {
+						bridge.onScreenOn();
+					}
+				}
+			}
+		}
+	}
+
 	@Override
 	public void onCreate() {
 		Log.i(TAG, "Starting service");
 
+		IntentFilter screenPowerFilter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+		screenPowerFilter.addAction(Intent.ACTION_SCREEN_OFF);
+		mScreenPowerReceiver = new ScreenPowerReceiver();
+		registerReceiver(mScreenPowerReceiver, screenPowerFilter);
+		
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		prefs.registerOnSharedPreferenceChangeListener(this);
 
@@ -174,6 +202,8 @@ public class TerminalManager extends Service implements BridgeDisconnectedListen
 	public void onDestroy() {
 		Log.i(TAG, "Destroying service");
 
+		unregisterReceiver(mScreenPowerReceiver);
+
 		disconnectAll(true, false);
 
 		hostdb = null;
@@ -208,7 +238,7 @@ public class TerminalManager extends Service implements BridgeDisconnectedListen
 		if (tmpBridges != null) {
 			// disconnect and dispose of any existing bridges
 			for (int i = 0; i < tmpBridges.length; i++) {
-				if (excludeLocal && !tmpBridges[i].isUsingNetwork())
+				if (excludeLocal && !tmpBridges[i].resetOnConnectionChange())
 					continue;
 				tmpBridges[i].dispatchDisconnect(immediate);
 			}
@@ -514,6 +544,11 @@ public class TerminalManager extends Service implements BridgeDisconnectedListen
 		Log.i(TAG, "Someone rebound to TerminalManager with " + bridges.size() + " bridges active");
 		keepServiceAlive();
 		setResizeAllowed(true);
+		synchronized (bridges) {
+			for (TerminalBridge bridge : bridges) {
+				bridge.onForeground();
+			}
+		}
 	}
 
 	@Override
@@ -522,15 +557,17 @@ public class TerminalManager extends Service implements BridgeDisconnectedListen
 
 		setResizeAllowed(true);
 
-		if (bridges.size() == 0) {
-			stopWithDelay();
-		} else {
-			// tell each bridge to forget about their previous prompt handler
-			for (TerminalBridge bridge : bridges) {
-				bridge.promptHelper.setHandler(null);
+		synchronized (bridges) {
+			if (bridges.size() == 0) {
+				stopWithDelay();
+			} else {
+				for (TerminalBridge bridge : bridges) {
+					// tell each bridge to forget about their previous prompt handler
+					bridge.promptHelper.setHandler(null);
+					bridge.onBackground();
+				}
 			}
 		}
-
 		return true;
 	}
 

@@ -393,6 +393,10 @@ public class TerminalBridge implements VDUDisplay {
 	 * authentication. If called before authenticated, it will just fail.
 	 */
 	public void onConnected() {
+		onConnected(true);
+	}
+
+	public void onConnected(boolean doPostLogin) {
 		disconnected = false;
 
 		((vt320) buffer).reset();
@@ -419,10 +423,16 @@ public class TerminalBridge implements VDUDisplay {
 		// force font-size to make sure we resizePTY as needed
 		setFontSize(fontSizeDp);
 
-		// finally send any post-login string, if requested
-		injectString(host.getPostLogin());
+		if (doPostLogin) {
+			postLogin();
+		}
 	}
 
+	public void postLogin() {
+		// send any post-login string, if requested
+		injectString(host.getPostLogin());
+	}
+    
 	/**
 	 * @return whether a session is open or not
 	 */
@@ -915,6 +925,22 @@ public class TerminalBridge implements VDUDisplay {
 		return transport.getPortForwards();
 	}
 
+	public void onBackground() {
+		transport.onBackground();
+	}
+
+	public void onForeground() {
+		transport.onForeground();
+	}
+
+	public void onScreenOff() {
+		transport.onScreenOff();
+	}
+
+	public void onScreenOn() {
+		transport.onScreenOn();
+	}
+
 	/**
 	 * Enables a port forward member. After calling this method, the port forward should
 	 * be operational.
@@ -1032,6 +1058,13 @@ public class TerminalBridge implements VDUDisplay {
 	 */
 	public boolean isUsingNetwork() {
 		return transport.usesNetwork();
+	}
+
+	/**
+	 * @return
+	 */
+	public boolean resetOnConnectionChange() {
+		return transport.resetOnConnectionChange();
 	}
 
 	/**

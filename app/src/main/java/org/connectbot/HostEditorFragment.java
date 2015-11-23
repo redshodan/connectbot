@@ -46,6 +46,7 @@ import android.widget.TextView;
 
 import org.connectbot.bean.HostBean;
 import org.connectbot.transport.SSH;
+import org.connectbot.transport.Mosh;
 import org.connectbot.transport.Telnet;
 import org.connectbot.transport.TransportFactory;
 import org.connectbot.util.HostDatabase;
@@ -566,7 +567,8 @@ public class HostEditorFragment extends Fragment {
 				TransportFactory.getFormatHint(protocol, getActivity()));
 
 		// Different protocols have different field types, so show only the fields needed.
-		if (SSH.getProtocolName().equals(protocol)) {
+		if (SSH.getProtocolName().equals(protocol) ||
+			Mosh.getProtocolName().equals(protocol)) {
 			mUsernameContainer.setVisibility(View.VISIBLE);
 			mHostnameContainer.setVisibility(View.VISIBLE);
 			mPortContainer.setVisibility(View.VISIBLE);

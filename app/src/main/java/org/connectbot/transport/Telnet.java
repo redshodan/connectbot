@@ -344,4 +344,9 @@ public class Telnet extends AbsTransport {
 	public boolean usesNetwork() {
 		return true;
 	}
+
+	@Override
+	public boolean resetOnConnectionChange() {
+		return true;
+	}
 }

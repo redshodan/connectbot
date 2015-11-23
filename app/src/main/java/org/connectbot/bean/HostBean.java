@@ -6,7 +6,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *	 http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -55,6 +55,9 @@ public class HostBean extends AbstractBean {
 	private String encoding = HostDatabase.ENCODING_DEFAULT;
 	private boolean stayConnected = false;
 	private boolean quickDisconnect = false;
+	private int moshPort = -1;
+	private String moshServer = null;
+	private String locale = HostDatabase.LOCALE_DEFAULT;
 
 	public HostBean() {
 
@@ -189,6 +192,30 @@ public class HostBean extends AbstractBean {
 		return stayConnected;
 	}
 
+	public void setMoshPort(int moshPort) {
+		this.moshPort = moshPort;
+	}
+	
+	public int getMoshPort() {
+		return moshPort;
+	}
+	
+	public void setMoshServer(String moshServer) {
+		this.moshServer = moshServer;
+	}
+	
+	public String getMoshServer() {
+		return moshServer;
+	}
+	
+	public void setLocale(String locale) {
+		this.locale = locale;
+	}
+	
+	public String getLocale() {
+		return locale;
+	}
+
 	public void setQuickDisconnect(boolean quickDisconnect) {
 		this.quickDisconnect = quickDisconnect;
 	}
@@ -228,6 +255,9 @@ public class HostBean extends AbstractBean {
 		values.put(HostDatabase.FIELD_HOST_ENCODING, encoding);
 		values.put(HostDatabase.FIELD_HOST_STAYCONNECTED, Boolean.toString(stayConnected));
 		values.put(HostDatabase.FIELD_HOST_QUICKDISCONNECT, Boolean.toString(quickDisconnect));
+		values.put(HostDatabase.FIELD_HOST_MOSHPORT, moshPort);
+		values.put(HostDatabase.FIELD_HOST_MOSH_SERVER, moshServer);
+		values.put(HostDatabase.FIELD_HOST_LOCALE, locale);
 
 		return values;
 	}
@@ -290,6 +320,15 @@ public class HostBean extends AbstractBean {
 			return false;
 
 		if (port != host.getPort())
+			return false;
+
+		if (moshPort != host.getMoshPort())
+			return false;
+
+		if (moshServer != host.getMoshServer())
+			return false;
+
+		if (locale != host.getLocale())
 			return false;
 
 		return true;

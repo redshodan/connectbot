@@ -6,7 +6,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *	 http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -50,7 +50,7 @@ public class HostDatabase extends RobustSQLiteOpenHelper implements HostStorage,
 	public final static String TAG = "CB.HostDatabase";
 
 	public final static String DB_NAME = "hosts";
-	public final static int DB_VERSION = 24;
+	public final static int DB_VERSION = 25;
 
 	public final static String TABLE_HOSTS = "hosts";
 	public final static String FIELD_HOST_NICKNAME = "nickname";
@@ -73,6 +73,9 @@ public class HostDatabase extends RobustSQLiteOpenHelper implements HostStorage,
 	public final static String FIELD_HOST_ENCODING = "encoding";
 	public final static String FIELD_HOST_STAYCONNECTED = "stayconnected";
 	public final static String FIELD_HOST_QUICKDISCONNECT = "quickdisconnect";
+	public final static String FIELD_HOST_MOSHPORT = "moshport";
+	public final static String FIELD_HOST_MOSH_SERVER = "moshserver";
+	public final static String FIELD_HOST_LOCALE = "locale";
 
 	public final static String TABLE_PORTFORWARDS = "portforwards";
 	public final static String FIELD_PORTFORWARD_HOSTID = "hostid";
@@ -112,6 +115,8 @@ public class HostDatabase extends RobustSQLiteOpenHelper implements HostStorage,
 	public final static String AUTHAGENT_YES = "yes";
 
 	public final static String ENCODING_DEFAULT = Charset.defaultCharset().name();
+	public final static String LOCALE_DEFAULT = "en_US.UTF-8";
+	public final static String MOSH_SERVER_DEFAULT = "mosh-server";
 
 	public final static long PUBKEYID_NEVER = -2;
 	public final static long PUBKEYID_ANY = -1;
@@ -201,7 +206,11 @@ public class HostDatabase extends RobustSQLiteOpenHelper implements HostStorage,
 				+ FIELD_HOST_COMPRESSION + " TEXT DEFAULT '" + Boolean.toString(false) + "', "
 				+ FIELD_HOST_ENCODING + " TEXT DEFAULT '" + ENCODING_DEFAULT + "', "
 				+ FIELD_HOST_STAYCONNECTED + " TEXT DEFAULT '" + Boolean.toString(false) + "', "
-				+ FIELD_HOST_QUICKDISCONNECT + " TEXT DEFAULT '" + Boolean.toString(false) + "')");
+				+ FIELD_HOST_QUICKDISCONNECT + " TEXT DEFAULT '" + Boolean.toString(false) + "', "
+				+ FIELD_HOST_MOSHPORT + " INTEGER DEFAULT 0, "
+				+ FIELD_HOST_LOCALE + " TEXT DEFAULT '" + LOCALE_DEFAULT + "', "
+				+ FIELD_HOST_MOSH_SERVER + " TEXT DEFAULT '" + MOSH_SERVER_DEFAULT + "' "
+				+ ")");
 
 		db.execSQL("CREATE TABLE " + TABLE_PORTFORWARDS
 				+ " (_id INTEGER PRIMARY KEY, "
@@ -320,6 +329,13 @@ public class HostDatabase extends RobustSQLiteOpenHelper implements HostStorage,
 		case 23:
 			db.execSQL("UPDATE " + TABLE_HOSTS
 					+ " SET " + FIELD_HOST_FONTSIZE + " = " + FIELD_HOST_FONTSIZE + " / " + displayDensity);
+		case 25:
+			db.execSQL("ALTER TABLE " + TABLE_HOSTS
+					+ " ADD COLUMN " + FIELD_HOST_MOSHPORT + " INTEGER DEFAULT 0");
+			db.execSQL("ALTER TABLE " + TABLE_HOSTS
+					+ " ADD COLUMN " + FIELD_HOST_LOCALE + " TEXT DEFAULT '" + LOCALE_DEFAULT + "'");
+			db.execSQL("ALTER TABLE " + TABLE_HOSTS
+					+ " ADD COLUMN " + FIELD_HOST_MOSH_SERVER + " TEXT DEFAULT '" + MOSH_SERVER_DEFAULT + "'");
 		}
 	}
 
@@ -423,7 +439,10 @@ public class HostDatabase extends RobustSQLiteOpenHelper implements HostStorage,
 			COL_COMPRESSION = c.getColumnIndexOrThrow(FIELD_HOST_COMPRESSION),
 			COL_ENCODING = c.getColumnIndexOrThrow(FIELD_HOST_ENCODING),
 			COL_STAYCONNECTED = c.getColumnIndexOrThrow(FIELD_HOST_STAYCONNECTED),
-			COL_QUICKDISCONNECT = c.getColumnIndexOrThrow(FIELD_HOST_QUICKDISCONNECT);
+			COL_QUICKDISCONNECT = c.getColumnIndexOrThrow(FIELD_HOST_QUICKDISCONNECT),
+			COL_MOSHPORT = c.getColumnIndexOrThrow(FIELD_HOST_MOSHPORT),
+			COL_MOSH_SERVER = c.getColumnIndexOrThrow(FIELD_HOST_MOSH_SERVER),
+			COL_LOCALE = c.getColumnIndexOrThrow(FIELD_HOST_LOCALE);
 
 		while (c.moveToNext()) {
 			HostBean host = new HostBean();
@@ -447,6 +466,9 @@ public class HostDatabase extends RobustSQLiteOpenHelper implements HostStorage,
 			host.setEncoding(c.getString(COL_ENCODING));
 			host.setStayConnected(Boolean.valueOf(c.getString(COL_STAYCONNECTED)));
 			host.setQuickDisconnect(Boolean.valueOf(c.getString(COL_QUICKDISCONNECT)));
+			host.setMoshPort(c.getInt(COL_MOSHPORT));
+			host.setMoshServer(c.getString(COL_MOSH_SERVER));
+			host.setLocale(c.getString(COL_LOCALE));
 
 			hosts.add(host);
 		}

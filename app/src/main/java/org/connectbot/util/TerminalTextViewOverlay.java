@@ -23,9 +23,11 @@ import org.connectbot.service.TerminalBridge;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.v4.view.MotionEventCompat;
 import android.text.ClipboardManager;
 import android.view.ActionMode;
@@ -52,6 +54,7 @@ public class TerminalTextViewOverlay extends TextView {
 	private String currentSelection = "";
 	private ActionMode selectionActionMode;
 	private ClipboardManager clipboard;
+	private SharedPreferences prefs;
 
 	private int oldBufferHeight = 0;
 	private int oldScrollY = -1;
@@ -66,6 +69,8 @@ public class TerminalTextViewOverlay extends TextView {
 		setTypeface(Typeface.MONOSPACE);
 		setTextIsSelectable(true);
 		setCustomSelectionActionModeCallback(new TextSelectionActionModeCallback());
+
+		prefs = PreferenceManager.getDefaultSharedPreferences(context);
 	}
 
 	public void refreshTextFromBuffer() {
@@ -169,6 +174,12 @@ public class TerminalTextViewOverlay extends TextView {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+		boolean pgUpDnGestureEnabled =
+			prefs.getBoolean(PreferenceConstants.PG_UPDN_GESTURE, false);
+		if (event.getX() <= getWidth() / 3 && pgUpDnGestureEnabled) {
+			return false;
+		}
+
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
 			// Selection may be beginning. Sync the TextView with the buffer.
 			refreshTextFromBuffer();

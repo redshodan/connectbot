@@ -23,24 +23,20 @@ import java.io.IOException;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.util.regex.Matcher;
 import java.net.InetAddress;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.UnknownHostException;
 
-import org.connectbot.R;
 import org.connectbot.bean.HostBean;
 import org.connectbot.service.TerminalBridge;
 import org.connectbot.service.TerminalManager;
 import org.connectbot.util.InstallMosh;
 
-import android.net.Uri;
 import android.util.Log;
 
 import com.trilead.ssh2.AuthAgentCallback;
 import com.trilead.ssh2.ChannelCondition;
-import com.trilead.ssh2.Connection;
 import com.trilead.ssh2.ConnectionMonitor;
 import com.trilead.ssh2.InteractiveCallback;
 import com.trilead.ssh2.ServerHostKeyVerifier;
@@ -255,60 +251,8 @@ public class Mosh extends SSH implements ConnectionMonitor, InteractiveCallback,
 			return;
 		}
 		bridge.outputLine("Mosh IP = " + moshIP);
-		
-		connection = new Connection(moshIP, host.getPort());
-		connection.addConnectionMonitor(this);
-		
-		try {
-			connection.setCompression(compression);
-		} catch (IOException e) {
-			Log.e(TAG, "Could not enable compression!", e);
-		}
 
-		try {
-			connectionInfo = connection.connect(new MoshHostKeyVerifier(host.getHostname()));
-			connected = true;
-
-			if (connectionInfo.clientToServerCryptoAlgorithm
-				.equals(connectionInfo.serverToClientCryptoAlgorithm)
-				&& connectionInfo.clientToServerMACAlgorithm
-				.equals(connectionInfo.serverToClientMACAlgorithm)) {
-				bridge.outputLine(manager.res.getString(R.string.terminal_using_algorithm,
-														connectionInfo.clientToServerCryptoAlgorithm,
-														connectionInfo.clientToServerMACAlgorithm));
-			} else {
-				bridge.outputLine(manager.res.getString(
-									  R.string.terminal_using_c2s_algorithm,
-									  connectionInfo.clientToServerCryptoAlgorithm,
-									  connectionInfo.clientToServerMACAlgorithm));
-
-				bridge.outputLine(manager.res.getString(
-									  R.string.terminal_using_s2c_algorithm,
-									  connectionInfo.serverToClientCryptoAlgorithm,
-									  connectionInfo.serverToClientMACAlgorithm));
-			}
-		} catch (IOException e) {
-			Log.e(TAG, "Problem in SSH connection thread during authentication", e);
-
-			// Display the reason in the text.
-			bridge.outputLine(e.getCause().getMessage());
-
-			onDisconnect();
-			return;
-		}
-
-		try {
-			// enter a loop to keep trying until authentication
-			int tries = 0;
-			while (connected && !connection.isAuthenticationComplete() && tries++ < AUTH_TRIES) {
-				authenticate();
-
-				// sleep to make sure we dont kill system
-				Thread.sleep(1000);
-			}
-		} catch (Exception e) {
-			Log.e(TAG, "Problem in SSH connection thread during authentication", e);
-		}
+		super.connect();
 	}
 
 	@Override
@@ -327,52 +271,6 @@ public class Mosh extends SSH implements ConnectionMonitor, InteractiveCallback,
 		} else {
 			return String.format("mosh %s@%s:%d", username, hostname, port);
 		}
-	}
-
-	public static Uri getUri(String input) {
-		Matcher matcher = hostmask.matcher(input);
-
-		if (!matcher.matches())
-			return null;
-
-		StringBuilder sb = new StringBuilder();
-		StringBuilder nickname = new StringBuilder();
-				
-		String username = matcher.group(1);
-		String hostname = matcher.group(2);
-
-		sb.append(getProtocolName())
-			.append("://")
-			.append(Uri.encode(username))
-			.append('@')
-			.append(Uri.encode(hostname));
-		nickname.append("mosh " + username + "@" + hostname);
-
-		String portString = matcher.group(6);
-		int port = DEFAULT_PORT;
-		if (portString != null) {
-			try {
-				port = Integer.parseInt(portString);
-				if (port < 1 || port > 65535) {
-					port = DEFAULT_PORT;
-				}
-			} catch (NumberFormatException nfe) {
-				// Keep the default port
-			}
-		}
-
-		if (port != DEFAULT_PORT) {
-			sb.append(':')
-				.append(port);
-			nickname.append(":" + port);
-		}
-
-		sb.append("/#")
-			.append(Uri.encode(nickname.toString()));
-
-		Uri uri = Uri.parse(sb.toString());
-
-		return uri;
 	}
 
 	@Override

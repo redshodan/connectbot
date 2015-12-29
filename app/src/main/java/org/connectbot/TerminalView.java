@@ -227,13 +227,12 @@ public class TerminalView extends FrameLayout implements FontSizeChangedListener
 							((vt320) bridge.buffer).keyPressed(vt320.KEY_PAGE_DOWN, ' ', 0);
 							bridge.tryKeyVibrate();
 							totalY = 0;
-							return true;
 						} else if (moved < -5) {
 							((vt320) bridge.buffer).keyPressed(vt320.KEY_PAGE_UP, ' ', 0);
 							bridge.tryKeyVibrate();
 							totalY = 0;
-							return true;
 						}
+						return true;
 					}
 					else if ((terminalTextViewOverlay == null) && (moved != 0)) {
 						int base = bridge.buffer.getWindowBase();
@@ -271,7 +270,8 @@ public class TerminalView extends FrameLayout implements FontSizeChangedListener
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (gestureDetector != null) {
-			gestureDetector.onTouchEvent(event);
+			if (gestureDetector.onTouchEvent(event))
+				return true;
 		}
 
 		// Old version of copying, only for pre-Honeycomb.

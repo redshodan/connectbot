@@ -145,7 +145,7 @@ public class Mosh extends SSH implements ConnectionMonitor, InteractiveCallback,
 	 * Internal method to request actual PTY terminal once we've finished
 	 * authentication. If called before authenticated, it will just fail.
 	 */
-		@Override
+	@Override
 	protected void finishConnection() {
 		authenticated = true;
 
@@ -199,66 +199,66 @@ public class Mosh extends SSH implements ConnectionMonitor, InteractiveCallback,
 
 	@Override
 	public void connect() {
-				if (!InstallMosh.isInstallStarted()) {
-					// check that InstallMosh was called by the Activity
-					bridge.outputLine("mosh-client binary install not started");
-					onDisconnect();
-					return;
-				}
-				if (!InstallMosh.isInstallDone()) {
-					bridge.outputLine("waiting for mosh binaries to install");
-					InstallMosh.waitForInstall();
-				}
+		if (!InstallMosh.isInstallStarted()) {
+			// check that InstallMosh was called by the Activity
+			bridge.outputLine("mosh-client binary install not started");
+			onDisconnect();
+			return;
+		}
+		if (!InstallMosh.isInstallDone()) {
+			bridge.outputLine("waiting for mosh binaries to install");
+			InstallMosh.waitForInstall();
+		}
 				
-				if (!InstallMosh.getMoshInstallStatus()) {
-					bridge.outputLine("mosh-client binary not found; install process failed");
-					bridge.outputLine(InstallMosh.getInstallMessages());
-					onDisconnect();
-					return;
-				}
+		if (!InstallMosh.getMoshInstallStatus()) {
+			bridge.outputLine("mosh-client binary not found; install process failed");
+			bridge.outputLine(InstallMosh.getInstallMessages());
+			onDisconnect();
+			return;
+		}
 				
-				bridge.outputLine(InstallMosh.getInstallMessages());
+		bridge.outputLine(InstallMosh.getInstallMessages());
 				
-				InetAddress addresses[];
-				try {
-					addresses = InetAddress.getAllByName(host.getHostname());
-				} catch (UnknownHostException e) {
-					bridge.outputLine("Launching mosh server via SSH failed, Unknown hostname: " + host.getHostname());
-					
-					onDisconnect();
-					return;
-				}
-
-				moshIP = null;
-				int try_family = 4;
-				for (int i = 0; i < addresses.length || try_family == 4; i++) {
-						if (i == addresses.length) {
-								i = 0;
-								try_family = 6;
-						}
-						if (addresses.length == 0) {
-								break;
-						}
-						if (try_family == 4 && addresses[i] instanceof Inet4Address) {
-								moshIP = addresses[i].getHostAddress();
-								break;
-						}
-						if (try_family == 6 && addresses[i] instanceof Inet6Address) {
-								moshIP = addresses[i].getHostAddress();
-								break;
-						}
-				}
-				if (moshIP == null) {
-						bridge.outputLine("No address records found for hostname: " + host.getHostname());
-
-						onDisconnect();
-						return;
-				}
-				bridge.outputLine("Mosh IP = " + moshIP);
-
+		InetAddress addresses[];
+		try {
+			addresses = InetAddress.getAllByName(host.getHostname());
+		} catch (UnknownHostException e) {
+			bridge.outputLine("Launching mosh server via SSH failed, Unknown hostname: " + host.getHostname());
+			
+			onDisconnect();
+			return;
+		}
+		
+		moshIP = null;
+		int try_family = 4;
+		for (int i = 0; i < addresses.length || try_family == 4; i++) {
+			if (i == addresses.length) {
+				i = 0;
+				try_family = 6;
+			}
+			if (addresses.length == 0) {
+				break;
+			}
+			if (try_family == 4 && addresses[i] instanceof Inet4Address) {
+				moshIP = addresses[i].getHostAddress();
+				break;
+			}
+			if (try_family == 6 && addresses[i] instanceof Inet6Address) {
+				moshIP = addresses[i].getHostAddress();
+				break;
+			}
+		}
+		if (moshIP == null) {
+			bridge.outputLine("No address records found for hostname: " + host.getHostname());
+			
+			onDisconnect();
+			return;
+		}
+		bridge.outputLine("Mosh IP = " + moshIP);
+		
 		connection = new Connection(moshIP, host.getPort());
 		connection.addConnectionMonitor(this);
-
+		
 		try {
 			connection.setCompression(compression);
 		} catch (IOException e) {
@@ -270,22 +270,22 @@ public class Mosh extends SSH implements ConnectionMonitor, InteractiveCallback,
 			connected = true;
 
 			if (connectionInfo.clientToServerCryptoAlgorithm
-					.equals(connectionInfo.serverToClientCryptoAlgorithm)
-					&& connectionInfo.clientToServerMACAlgorithm
-							.equals(connectionInfo.serverToClientMACAlgorithm)) {
+				.equals(connectionInfo.serverToClientCryptoAlgorithm)
+				&& connectionInfo.clientToServerMACAlgorithm
+				.equals(connectionInfo.serverToClientMACAlgorithm)) {
 				bridge.outputLine(manager.res.getString(R.string.terminal_using_algorithm,
-						connectionInfo.clientToServerCryptoAlgorithm,
-						connectionInfo.clientToServerMACAlgorithm));
+														connectionInfo.clientToServerCryptoAlgorithm,
+														connectionInfo.clientToServerMACAlgorithm));
 			} else {
 				bridge.outputLine(manager.res.getString(
-						R.string.terminal_using_c2s_algorithm,
-						connectionInfo.clientToServerCryptoAlgorithm,
-						connectionInfo.clientToServerMACAlgorithm));
+									  R.string.terminal_using_c2s_algorithm,
+									  connectionInfo.clientToServerCryptoAlgorithm,
+									  connectionInfo.clientToServerMACAlgorithm));
 
 				bridge.outputLine(manager.res.getString(
-						R.string.terminal_using_s2c_algorithm,
-						connectionInfo.serverToClientCryptoAlgorithm,
-						connectionInfo.serverToClientMACAlgorithm));
+									  R.string.terminal_using_s2c_algorithm,
+									  connectionInfo.serverToClientCryptoAlgorithm,
+									  connectionInfo.serverToClientMACAlgorithm));
 			}
 		} catch (IOException e) {
 			Log.e(TAG, "Problem in SSH connection thread during authentication", e);
@@ -377,20 +377,20 @@ public class Mosh extends SSH implements ConnectionMonitor, InteractiveCallback,
 
 	@Override
 	public void flush() throws IOException {
-				if (sshDone) {
-						os.flush();
-				} else {
-						super.flush();
-				}
+		if (sshDone) {
+			os.flush();
+		} else {
+			super.flush();
+		}
 	}
 
 	@Override
 	public boolean isConnected() {
-				if (sshDone) {
-						return is != null && os != null;
-				} else {
-						return super.isConnected();
-				}
+		if (sshDone) {
+			return is != null && os != null;
+		} else {
+			return super.isConnected();
+		}
 	}
 
 	@Override
@@ -401,18 +401,18 @@ public class Mosh extends SSH implements ConnectionMonitor, InteractiveCallback,
 
 	@Override
 	public boolean isSessionOpen() {
-				if (sshDone) {
-						return is != null && os != null;
-				} else {
-						return super.isSessionOpen();
-				}
+		if (sshDone) {
+			return is != null && os != null;
+		} else {
+			return super.isSessionOpen();
+		}
 	}
 
-		private void launchMosh() {
+	private void launchMosh() {
 		int[] pids = new int[1];
 
-				Exec.setenv("MOSH_KEY", moshKey);
-				Exec.setenv("TERM", getEmulation());
+		Exec.setenv("MOSH_KEY", moshKey);
+		Exec.setenv("TERM", getEmulation());
 		try {
 			shellFd = Exec.createSubprocess(InstallMosh.getMoshPath(), moshIP, moshPort, pids);
 			Exec.setPtyWindowSize(shellFd, rows, columns, width, height);
@@ -421,21 +421,21 @@ public class Mosh extends SSH implements ConnectionMonitor, InteractiveCallback,
 			Log.e(TAG, "Cannot start mosh-client", e);
 			onDisconnect();
 			return;
-				} finally {
-						Exec.setenv("MOSH_KEY", "");
-				}
-
+		} finally {
+			Exec.setenv("MOSH_KEY", "");
+		}
+		
 		moshPid = pids[0];
 		Runnable exitWatcher = new Runnable() {
-			public void run() {
-				Exec.waitFor(moshPid);
-				synchronized (moshPid) { 
-					moshPid = 0;
-				};
-
-				bridge.dispatchDisconnect(false);
-			}
-		};
+				public void run() {
+					Exec.waitFor(moshPid);
+					synchronized (moshPid) { 
+						moshPid = 0;
+					};
+					
+					bridge.dispatchDisconnect(false);
+				}
+			};
 
 		Thread exitWatcherThread = new Thread(exitWatcher);
 		exitWatcherThread.setName("LocalExitWatcher");
@@ -444,28 +444,28 @@ public class Mosh extends SSH implements ConnectionMonitor, InteractiveCallback,
 
 		is = new FileInputStream(shellFd);
 		os = new FileOutputStream(shellFd);
-
+		
 		bridge.postLogin();
-		}
-
+	}
+	
 	@Override
 	public int read(byte[] buffer, int start, int len) throws IOException {
-			if (sshDone) {
-				return mosh_read(buffer, start, len);
-			} else {
-				return ssh_read(buffer, start, len);
-			}
+		if (sshDone) {
+			return mosh_read(buffer, start, len);
+		} else {
+			return ssh_read(buffer, start, len);
 		}
+	}
 
-		private int mosh_read(byte[] buffer, int start, int len) throws IOException {
+	private int mosh_read(byte[] buffer, int start, int len) throws IOException {
 		if (is == null) {
 			bridge.dispatchDisconnect(false);
 			throw new IOException("session closed");
 		}
 		return is.read(buffer, start, len);
-		}
+	}
 
-		private int ssh_read(byte[] buffer, int start, int len) throws IOException {
+	private int ssh_read(byte[] buffer, int start, int len) throws IOException {
 		int bytesRead = 0;
 
 		if (session == null)
@@ -475,21 +475,21 @@ public class Mosh extends SSH implements ConnectionMonitor, InteractiveCallback,
 
 		if ((newConditions & ChannelCondition.STDOUT_DATA) != 0) {
 			bytesRead = stdout.read(buffer, start, len);
-						String data = new String(buffer);
-						int connectOffset = data.indexOf("MOSH CONNECT");
+			String data = new String(buffer);
+			int connectOffset = data.indexOf("MOSH CONNECT");
 
-						if (connectOffset > -1) {
-								int end = data.indexOf(" ", connectOffset + 13);
-								if (end > -1) {
-										moshPort = data.substring(connectOffset + 13, end);
-										int keyEnd = data.indexOf("\n", end + 1);
-										if (keyEnd > -1) {
-												moshKey = data.substring(end + 1, keyEnd - 1);
-												sshDone = true;
-												launchMosh();
-										}
-								}
-						}
+			if (connectOffset > -1) {
+				int end = data.indexOf(" ", connectOffset + 13);
+				if (end > -1) {
+					moshPort = data.substring(connectOffset + 13, end);
+					int keyEnd = data.indexOf("\n", end + 1);
+					if (keyEnd > -1) {
+						moshKey = data.substring(end + 1, keyEnd - 1);
+						sshDone = true;
+						launchMosh();
+					}
+				}
+			}
 		}
 
 		if ((newConditions & ChannelCondition.STDERR_DATA) != 0) {
@@ -500,46 +500,46 @@ public class Mosh extends SSH implements ConnectionMonitor, InteractiveCallback,
 		}
 
 		if ((newConditions & ChannelCondition.EOF) != 0) {
-						if (!sshDone) {
-								onDisconnect();
-								throw new IOException("Remote end closed connection");
-						}
+			if (!sshDone) {
+				onDisconnect();
+				throw new IOException("Remote end closed connection");
+			}
 		}
 
 		return bytesRead;
-		}
+	}
 
 	@Override
 	public void setDimensions(int columns, int rows, int width, int height) {
-				if (sshDone) {
-						try {
-								Exec.setPtyWindowSize(shellFd, rows, columns, width, height);
-						} catch (Exception e) {
-								Log.e(TAG, "Couldn't resize pty", e);
-						}
-				} else {
-						super.setDimensions(columns, rows, width, height);
-				}
+		if (sshDone) {
+			try {
+				Exec.setPtyWindowSize(shellFd, rows, columns, width, height);
+			} catch (Exception e) {
+				Log.e(TAG, "Couldn't resize pty", e);
+			}
+		} else {
+			super.setDimensions(columns, rows, width, height);
+		}
 	}
 
 	@Override
 	public void write(byte[] buffer) throws IOException {
-				if (sshDone) {
-						if (os != null)
-								os.write(buffer);
-				} else {
-						super.write(buffer);
-				}
+		if (sshDone) {
+			if (os != null)
+				os.write(buffer);
+		} else {
+			super.write(buffer);
+		}
 	}
 
 	@Override
 	public void write(int c) throws IOException {
-				if (sshDone) {
-						if (os != null)
-								os.write(c);
-				} else {
-						super.write(c);
-				}
+		if (sshDone) {
+			if (os != null)
+				os.write(c);
+		} else {
+			super.write(c);
+		}
 	}
 
 	@Override

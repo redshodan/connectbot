@@ -134,8 +134,9 @@ public class TerminalTextViewOverlay extends TextView {
 
 	private void closeSelectionActionMode() {
 		if (selectionActionMode != null) {
-			selectionActionMode.finish();
+			ActionMode tmp = selectionActionMode;
 			selectionActionMode = null;
+			tmp.finish();
 		}
 	}
 
@@ -172,11 +173,16 @@ public class TerminalTextViewOverlay extends TextView {
 		super.scrollTo(0, lineMultiple * getLineHeight());
 	}
 
+	public boolean isInSelect() {
+		return (selectionActionMode != null);
+	}
+
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		boolean pgUpDnGestureEnabled =
 			prefs.getBoolean(PreferenceConstants.PG_UPDN_GESTURE, false);
-		if (event.getX() <= getWidth() / 3 && pgUpDnGestureEnabled) {
+		if (pgUpDnGestureEnabled && (event.getX() <= (getWidth() / 3)) &&
+			terminalView.getInScroll()) {
 			return false;
 		}
 
@@ -391,6 +397,7 @@ public class TerminalTextViewOverlay extends TextView {
 
 		@Override
 		public void onDestroyActionMode(ActionMode mode) {
+			closeSelectionActionMode();
 		}
 	}
 }

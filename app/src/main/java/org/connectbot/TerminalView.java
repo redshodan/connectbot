@@ -107,6 +107,8 @@ public class TerminalView extends FrameLayout implements FontSizeChangedListener
 	private Matcher mCodeMatcher = null;
 	private AccessibilityEventSender mEventSender = null;
 
+	private boolean mInScroll = false;
+
 	private static final String BACKSPACE_CODE = "\\x08\\x1b\\[K";
 	private static final String CONTROL_CODE_PATTERN = "\\x1b\\[K[^m]+[m|:]";
 
@@ -211,11 +213,15 @@ public class TerminalView extends FrameLayout implements FontSizeChangedListener
 				// activate consider if within x tolerance
 				int touchSlop =
 						ViewConfiguration.get(TerminalView.this.context).getScaledTouchSlop();
-				if (Math.abs(e1.getX() - e2.getX()) < touchSlop * 4) {
+				if ((((terminalTextViewOverlay != null) && !terminalTextViewOverlay.isInSelect()) ||
+					(terminalTextViewOverlay == null)) &&
+					(Math.abs(e1.getX() - e2.getX()) < touchSlop * 4)) {
 					// estimate how many rows we have scrolled through
 					// accumulate distance that doesn't trigger immediate scroll
 					totalY += distanceY;
 					final int moved = (int) (totalY / bridge.charHeight);
+
+					mInScroll = true;
 
 					// Consume as pg up/dn only if towards left third of screen with the gesture
 					// enabled.
@@ -227,10 +233,12 @@ public class TerminalView extends FrameLayout implements FontSizeChangedListener
 							((vt320) bridge.buffer).keyPressed(vt320.KEY_PAGE_DOWN, ' ', 0);
 							bridge.tryKeyVibrate();
 							totalY = 0;
+							mInScroll = false;
 						} else if (moved < -5) {
 							((vt320) bridge.buffer).keyPressed(vt320.KEY_PAGE_UP, ' ', 0);
 							bridge.tryKeyVibrate();
 							totalY = 0;
+							mInScroll = false;
 						}
 						return true;
 					}
@@ -240,6 +248,9 @@ public class TerminalView extends FrameLayout implements FontSizeChangedListener
 						totalY = 0;
 						return true;
 					}
+				}
+				else {
+					mInScroll = false;
 				}
 
 				if (terminalTextViewOverlay == null)
@@ -254,6 +265,10 @@ public class TerminalView extends FrameLayout implements FontSizeChangedListener
 				return super.onSingleTapConfirmed(e);
 			}
 		});
+	}
+
+	public boolean getInScroll() {
+		return mInScroll;
 	}
 
 	@TargetApi(11)
